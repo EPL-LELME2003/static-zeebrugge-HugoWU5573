@@ -26,31 +26,33 @@ CH4_needs_CO2 = 2.5 # [tCO2/tCH4] CO2 needs for H2 production from CH4
 ############ CODE TO ADD HERE ############
 ##########################################
 
-b_CH4 = pyo.Var(within=pyo.NonNegativeReals) # Number of CH4 boats
-b_NH3 = pyo.Var(within=pyo.NonNegativeReals) # Number of NH3 boats
+model.b_CH4 = pyo.Var(within=pyo.NonNegativeReals) # Number of CH4 boats
+model.b_NH3 = pyo.Var(within=pyo.NonNegativeReals) # Number of NH3 boats
 
 # Define the objective functions
 ##########################################
 ############ CODE TO ADD HERE ############
 ##########################################
 
-obj = pyo.Objective(expr = V_boat * (rho_CH4 * efficiency_CH4 * b_CH4 + rho_NH3 * efficiency_NH3 * b_NH3), sense=pyo.minimize)
+model.obj = pyo.Objective(expr = V_boat * (rho_CH4 * efficiency_CH4 * model.b_CH4 + rho_NH3 * efficiency_NH3 * model.b_NH3), sense=pyo.maximize)
 
 # Define the constraints
 ##########################################
 ############ CODE TO ADD HERE ############
 ##########################################
 
-model.constraint1 = pyo.Constraint(expr = (b_CH4 + b_NH3 ) <= 100 ) # H2 production constraint
-model.constraint2 = pyo.Constraint(expr = (V_boat*rho_CH4*b_CH4*LHV_CH4 / efficiency_CH4 + V_boat*rho_NH3*LHV_NH3*b_NH3/efficiency_NH3 <= 140e12 ) )
-model.constraint3 = pyo.Constraint(expr = (V_boat*rho_CH4*b_CH4*CH4_needs_CO2 <= 14e9 ) ) # CO2 constraint
+model.con1 = pyo.Constraint(expr = (model.b_CH4 + model.b_NH3 ) <= 100 ) # H2 production constraint
+model.con2 = pyo.Constraint(expr = (V_boat*rho_CH4*model.b_CH4*LHV_CH4 / efficiency_CH4 + V_boat*rho_NH3*LHV_NH3*model.b_NH3/efficiency_NH3 <= 140e12 ) )
+model.con3 = pyo.Constraint(expr = (V_boat*rho_CH4*model.b_CH4*CH4_needs_CO2 <= 14e9 ) ) # CO2 constraint
                     
 
 # Specify the path towards your solver (gurobi) file
-solver = pyo.SolverFactory('\gurobi1201\gurobi.lic')
+solver = pyo.SolverFactory("gurobi")
 sol = solver.solve(model)
 
 # Print here the number of CH4 boats and NH3 boats
 ##########################################
 ############ CODE TO ADD HERE ############
 ##########################################
+print(model.b_CH4())
+print(model.b_NH3())
